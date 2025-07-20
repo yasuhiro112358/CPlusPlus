@@ -1,14 +1,27 @@
+.PHONY: all build run clean
+
 CXX = g++
 CXXFLAGS = -Wall -std=c++17 -Iinclude
-SRCS = src/main.cpp src/calculator.cpp
-OBJS = $(SRCS:.cpp=.o)
-TARGET = build/myapp
+SRC_DIR = src
+BUILD_DIR = build
+
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+TARGET = $(BUILD_DIR)/myapp
+
+all: build run
+
+build: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o: %.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+run: $(TARGET)
+	./$(TARGET)
+
 clean:
-	rm -f src/*.o build/myapp
+	rm -rf $(BUILD_DIR)
