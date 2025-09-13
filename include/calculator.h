@@ -1,10 +1,7 @@
-#ifndef CALCULATOR_H
-#define CALCULATOR_H
+#pragma once
 
 class Calculator {
-    public:
-        int add(int a, int b);
-        int subtract(int a, int b);
+public:
+  int add(int a, int b);
+  int subtract(int a, int b);
 };
-
-#endif
