@@ -1,15 +1,12 @@
-//============================================================================
-// Name        : HelloWorld.cpp
-// Author      : Yasuhiro WATANABE
-// Version     :
-// Copyright   : Your copyright notice
-// Description : Hello World in C++, Ansi-style
-//============================================================================
-
 #include <iostream>
-using namespace std;
+#include "calculator.h"
 
 int main() {
-	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
-	return 0;
+    std::cout << "Hello world!!!" << std::endl;
+
+    Calculator calc;
+    std::cout << "2 + 3 = " << calc.add(2, 3) << std::endl;
+    std::cout << "5 - 3 = " << calc.subtract(5, 3) << std::endl;
+
+    return 0;
 }
