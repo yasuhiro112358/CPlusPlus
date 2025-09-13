@@ -1,3 +1,11 @@
+build/
+
+
+
+
+
+# Below are old contents of .gitignore
+
 # Eclipse-specific files and folders
 .project
 .cproject
