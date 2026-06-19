@@ -198,6 +198,34 @@ BankAccount a(100);    // ✅ 明示的に書けば OK
 例外：暗黙変換を**意図的に**使いたい場合のみ外す（標準ライブラリの
 `std::string s = "hello";` のように、変換が便利な型）。
 
+## main は最外 try/catch を持つ
+
+すべての `main` は、本体を `try { ... } catch` で囲む。`throw` を書いていなくても
+`std::bad_alloc`（メモリ不足）などの例外はどこでも起こりうるため、main から例外を
+漏らして `std::terminate` に至るのを防ぐ安全網を一律で置く。
+
+戻り値は**各分岐の中で返す**（成功は try 内で `return 0`、失敗は catch 内で `return 1`）。
+末尾に浮いた `return 0` を置かない。各経路が自分の結末を返すので読みやすい。
+
+```cpp
+int main() {
+  try {
+    // ... 本体 ...
+    return 0;
+  } catch (const std::exception& e) {
+    std::cerr << "予期しない例外が main に到達: " << e.what() << '\n';
+    return 1;
+  } catch (...) {
+    std::cerr << "予期しない非標準例外が main に到達" << '\n';
+    return 1;
+  }
+}
+```
+
+ただしこれは C++ 例外に対する安全網であり、未定義動作（範囲外アクセス等）や
+OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられない。それらは正しいコードと
+静的解析（clang-tidy）で防ぐ。
+
 ## 静的解析（.clang-tidy）
 
 バグや非モダンな書き方を指摘する静的解析ツール clang-tidy の設定。
