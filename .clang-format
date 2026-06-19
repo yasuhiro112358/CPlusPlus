@@ -3,9 +3,9 @@ IndentWidth: 2
 ColumnLimit: 100
 NamespaceIndentation: All
 AccessModifierOffset: -2
-AllowShortFunctionsOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: Inline   # クラス内の短い関数（ゲッター等）は1行に保つ
 SpaceBeforeParens: ControlStatements
 DerivePointerAlignment: false
-PointerAlignment: Right      # int* p の形
+PointerAlignment: Left       # int* p / Type& e の形（既存コードに統一）
 SortIncludes: true
 IncludeBlocks: Merge

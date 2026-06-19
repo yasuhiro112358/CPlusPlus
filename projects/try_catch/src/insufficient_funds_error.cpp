@@ -10,7 +10,6 @@ namespace try_catch {
   } // namespace
 
   InsufficientFundsError::InsufficientFundsError(int balance, int requested)
-      : std::runtime_error(buildMessage(balance, requested)),
-        balance_(balance),
+      : std::runtime_error(buildMessage(balance, requested)), balance_(balance),
         requested_(requested) {}
 } // namespace try_catch

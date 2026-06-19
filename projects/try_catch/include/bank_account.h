@@ -5,8 +5,10 @@ namespace try_catch {
   public:
     explicit BankAccount(int initialBalance = 0);
 
-    void deposit(int amount);  // 負の額なら std::invalid_argument
-    void withdraw(int amount); // 負の額なら std::invalid_argument、残高不足なら InsufficientFundsError
+    // 負の額なら std::invalid_argument
+    void deposit(int amount);
+    // 負の額なら std::invalid_argument、残高不足なら InsufficientFundsError
+    void withdraw(int amount);
     [[nodiscard]] int balance() const { return balance_; }
 
   private:
