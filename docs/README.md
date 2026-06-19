@@ -20,6 +20,7 @@
 
 - [build-and-run.md](how-to/build-and-run.md) — 3つのビルド方法（CMake / 直接コンパイル / Dev Container）
 - [add-new-project.md](how-to/add-new-project.md) — 新しいテーマ（プロジェクト）を追加する
+- [run-static-analysis.md](how-to/run-static-analysis.md) — clang-tidy で静的解析を実行する
 
 ### Reference（リファレンス）
 
