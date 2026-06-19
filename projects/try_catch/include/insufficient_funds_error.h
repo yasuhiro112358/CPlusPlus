@@ -8,8 +8,8 @@ namespace try_catch {
   public:
     InsufficientFundsError(int balance, int requested);
 
-    int balance() const { return balance_; }
-    int requested() const { return requested_; }
+    [[nodiscard]] int balance() const { return balance_; }
+    [[nodiscard]] int requested() const { return requested_; }
 
   private:
     int balance_;

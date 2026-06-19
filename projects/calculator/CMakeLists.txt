@@ -8,6 +8,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/app.cpp
-    src/calculator.cpp
+    src/arithmetic.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)

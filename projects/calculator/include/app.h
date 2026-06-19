@@ -1,5 +1,5 @@
 #pragma once
-#include <string>
+#include <string_view>
 
 namespace calculator {
   class App {
@@ -8,6 +8,8 @@ namespace calculator {
     void run();
 
   private:
-    static std::string appName_;
+    // App はこの名前を「インスタンスの状態」として持つ。
+    // run() がこのメンバを使うことで、run() は正当なインスタンスメソッドになる。
+    std::string_view appName_ = "calculator";
   };
 } // namespace calculator
