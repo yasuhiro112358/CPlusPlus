@@ -114,6 +114,26 @@ macOS では `gcc`/`g++` も実体は Clang へのエイリアスになってい
 | 名前空間 | snake_case | `cpp_lab::models` |
 | ファイル | snake_case（中の型名は PascalCase） | `person.h` / `person.cpp` |
 
+## クラス内のメンバ順序
+
+アクセスレベル順に並べ、**`public:` を先・`private:`（データメンバ）を後**に置く
+（C++主流のスタイル。Google C++ Style Guide 等が推奨）。
+
+```cpp
+class BankAccount {
+public:                       // ① 使い方（外部インターフェース）を先に
+  explicit BankAccount(int initialBalance = 0);
+  void deposit(int amount);
+  int balance() const { return balance_; }
+
+private:                      // ② 実装の詳細（データメンバ）は後に
+  int balance_;
+};
+```
+
+理由：ヘッダはクラスの「使い方」を伝える顔であり、読み手の関心が高い public を先に
+置く。データメンバは内部の詳細なので末尾に置く。
+
 ## エディタ設定（.vscode/settings.json）
 
 | 設定 | 値 | 意味 |

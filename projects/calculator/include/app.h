@@ -3,11 +3,11 @@
 
 namespace calculator {
   class App {
-  private:
-    static std::string appName_;
-
   public:
     App();
     void run();
+
+  private:
+    static std::string appName_;
   };
 } // namespace calculator
