@@ -1,5 +1,6 @@
 #include "kuhn_trainer.h"
 #include <array>
+#include <iomanip>
 #include <iostream>
 #include <string>
 
@@ -69,9 +70,11 @@ namespace cfr {
 
   void KuhnTrainer::printStrategy() const {
     std::cout << "--- 平均戦略（情報集合: pass/bet）---\n";
+    std::cout << std::fixed << std::setprecision(4);
     for (const auto& [infoSet, node] : nodeMap_) {
       const std::array<double, NUM_ACTIONS> avg = node.getAverageStrategy();
-      std::cout << infoSet << " : pass=" << avg[0] << " bet=" << avg[1] << '\n';
+      std::cout << std::left << std::setw(3) << infoSet << " : pass=" << avg[0] << " bet=" << avg[1]
+                << '\n';
     }
   }
 } // namespace cfr
