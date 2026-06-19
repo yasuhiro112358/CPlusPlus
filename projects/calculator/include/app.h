@@ -1,16 +1,13 @@
 #pragma once
 #include <string>
 
-namespace cpp_lab {
+namespace calculator {
   class App {
   private:
     static std::string appName_;
 
   public:
-    // Constructor
     App();
-
-    // Run the application
     void run();
   };
-} // namespace cpp_lab
+} // namespace calculator

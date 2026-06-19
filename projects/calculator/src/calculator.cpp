@@ -1,6 +1,6 @@
-#include "cpp_lab/calculator.h"
+#include "calculator.h"
 
-using namespace cpp_lab;
+using namespace calculator;
 
 int Calculator::add(int a, int b) {
   return a + b;
