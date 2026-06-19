@@ -157,6 +157,32 @@ try_catch::BankAccount account(100);
 - 各プロジェクトの `CMakeLists.txt` を自己完結させる
   （トップの `add_subdirectory` を1行消すだけで切り離せる）
 
+### 定義は namespace で囲む（using namespace を使わない）
+
+`.cpp` での定義は、`using namespace X;` ＋ 修飾名ではなく、**全体を
+`namespace X { ... }` で囲む**スタイルに統一する（Google C++ Style Guide と同じ流儀）。
+自由関数もクラスメンバも同じ形で書け、`using namespace` を全廃できる。
+
+```cpp
+// bank_account.cpp
+namespace try_catch {
+  BankAccount::BankAccount(int initialBalance) : balance_(initialBalance) {}
+  void BankAccount::deposit(int amount) { ... }   // クラスメンバ
+}
+
+// arithmetic.cpp
+namespace calculator {
+  int add(int a, int b) { return a + b; }          // 自由関数
+}
+```
+
+- **ヘッダ（宣言）も実装（定義）も囲む** → 同じ名前空間に宣言と定義が入り対応する。
+- **ヘッダでは `using namespace` を絶対に書かない**（include した全ファイルに波及する）。
+- 例外：`using namespace` を局所的に使ってよいのは**関数スコープ内**のみ
+  （リテラル接尾辞 `using namespace std::chrono_literals;` など）。
+  特定の名前1つを局所的に使うなら `using namespace` ではなく
+  using 宣言（`using std::swap;`）を関数内で使う。
+
 ## クラス内のメンバ順序
 
 アクセスレベル順に並べ、**`public:` を先・`private:`（データメンバ）を後**に置く
@@ -197,6 +223,40 @@ BankAccount a(100);    // ✅ 明示的に書けば OK
 
 例外：暗黙変換を**意図的に**使いたい場合のみ外す（標準ライブラリの
 `std::string s = "hello";` のように、変換が便利な型）。
+
+## main は薄く保つ
+
+`main`（や入口の処理）は**エントリポイントに徹し、ロジックは別ファイルに置く**。
+main にはほとんど書かない。
+
+- **ロジックは別ファイルの関数/クラスへ**：テストしやすく、再利用でき、main は流れだけを示す。
+- **公開は最小に**：複数の補助関数があるなら、公開窓口を1つ（例 `runAllDemos()`）に絞り、
+  個々の補助関数は実装ファイル内の**無名 namespace に隠す**。
+- **クラスにするかは状態で決める**：状態が無いなら自由関数を別ファイルにまとめる
+  （クラスでラップしない）。
+
+```cpp
+// main.cpp — 安全網と1行の呼び出しだけ
+#include "exception_demos.h"
+int main() {
+  try {
+    try_catch::runAllDemos();   // 実体は別ファイル
+    return 0;
+  } catch (const std::exception& e) { ...; return 1; }
+  catch (...) { ...; return 1; }
+}
+```
+
+```cpp
+// exception_demos.cpp — 個々の補助は無名 namespace に隠し、窓口だけ公開
+namespace try_catch {
+  namespace {
+    void demoStandardException() { ... }   // file-local（隠す）
+    // ...
+  }
+  void runAllDemos() { ... }               // 公開窓口
+}
+```
 
 ## main は最外 try/catch を持つ
 

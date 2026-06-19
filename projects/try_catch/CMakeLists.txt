@@ -7,6 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/exception_demos.cpp
     src/bank_account.cpp
     src/insufficient_funds_error.cpp
 )
