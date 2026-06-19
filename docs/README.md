@@ -29,3 +29,4 @@
 ### Explanation（解説）
 
 - [build-system-and-environment.md](explanation/build-system-and-environment.md) — なぜCMakeなのか・ビルドの仕組み・Dev Containerの仕組み・設計判断
+- [exceptions.md](explanation/exceptions.md) — 例外処理の設計（カスタム例外・継承・仮想what()・スライシング・catchの順序）
