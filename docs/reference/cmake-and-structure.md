@@ -122,6 +122,11 @@ macOS では `gcc`/`g++` も実体は Clang へのエイリアスになってい
 | 名前空間 | snake_case | `cfr`, `try_catch` |
 | ファイル | snake_case。中身を表す名前 | クラス→型名 `kuhn_game.h`、自由関数→分野名 `arithmetic.h` |
 
+ファイル名も **Google C++ Style に準拠**する（snake_case、ヘッダは `.h`、クラスを入れる
+ファイルは型名と一致＝`kuhn_state.h` = `KuhnState`）。**ただしソース拡張子だけは Google の
+`.cc` ではなく `.cpp` を使う**——`.cpp` の方が世界的に普遍的で、IDE・チュートリアルの既定だから。
+これが Google からの唯一の意図的な逸脱。
+
 ファイル名は「中身が何か」を表す。クラスを入れるファイルは型名（実体の名詞、例
 `bank_account.h` = `BankAccount`）、自由関数をまとめるファイルは分野名（カテゴリの
 名詞、例 `arithmetic.h` = 算術演算）にする。クラスか関数かをファイル名で区別する
