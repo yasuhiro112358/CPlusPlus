@@ -13,10 +13,11 @@ void runKuhnDemo() {
   CfrSolver<KuhnGame> solver{KuhnGame{}};
   const int iterations = 100000;
   const double gameValue = solver.train(iterations);
+  const double theoreticalValue = -1.0 / 18.0;  // 既知の理論値 -1/18
 
   std::cout << "反復回数            : " << iterations << '\n';
   std::cout << "P0 の平均ゲーム価値 : " << gameValue << '\n';
-  std::cout << "理論値 -1/18        : " << -1.0 / 18.0 << '\n';
+  std::cout << "理論値 -1/18        : " << theoreticalValue << '\n';
 
   std::cout << "--- 平均戦略（情報集合: pass/bet）---\n";
   std::cout << std::fixed << std::setprecision(4);

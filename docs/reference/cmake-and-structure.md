@@ -326,7 +326,8 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 ## 静的解析（.clang-tidy）
 
 バグや非モダンな書き方を指摘する静的解析ツール clang-tidy の設定。
-C++ Core Guidelines を中心に、有効化するチェック群を [.clang-tidy](../../.clang-tidy) で管理する。
+**方針：C++ Core Guidelines に準拠する**（コードを規約に合わせる。抑制で逃げない）。
+有効化するチェック群を [.clang-tidy](../../.clang-tidy) で管理する。
 
 | チェック群 | 内容 |
 |-----------|------|
@@ -338,6 +339,12 @@ C++ Core Guidelines を中心に、有効化するチェック群を [.clang-tid
 
 `readability-identifier-naming` を使い、命名規則（型は PascalCase、メンバ変数は末尾 `_` 等）を
 自動チェックしている。実行方法は [how-to/run-static-analysis.md](../how-to/run-static-analysis.md)。
+
+`cppcoreguidelines-*` は原則すべて有効。無効化しているのは **GSL（Guidelines Support
+Library）を前提とする pro-bounds プロファイル**（`pro-bounds-constant-array-index` 等。
+このリポジトリは GSL を使わず、固定長 `std::array` の添字は範囲が静的に保証されるため）と、
+Core Guidelines 外でノイズの多い数件（`readability-identifier-length` など）のみ。
+マジックナンバーは抑制せず**名前付き定数に置き換える**（[self-documenting](#self-documenting名前と型で語る) と同じ方針）。
 
 clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）は**役割が別**。両方併用する。
 

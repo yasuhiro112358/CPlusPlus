@@ -1,6 +1,7 @@
 # モダンC++ 静的解析の設定。
-# C++ Core Guidelines を中心に、modernize / bugprone / performance / readability を有効化する。
-# 練習用リポジトリのため、ノイズの多い一部チェックは無効化している。
+# 方針：C++ Core Guidelines に準拠する（cppcoreguidelines-* は原則すべて有効）。
+# 無効化しているのは、GSL を前提とする pro-bounds プロファイル（このリポジトリは
+# GSL を使わないため）と、Core Guidelines 外でノイズの多い一部チェックのみ。
 Checks: >
   bugprone-*,
   cppcoreguidelines-*,
@@ -10,8 +11,6 @@ Checks: >
   -modernize-use-trailing-return-type,
   -readability-identifier-length,
   -readability-magic-numbers,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -cppcoreguidelines-avoid-non-const-global-variables,
   -bugprone-easily-swappable-parameters,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,

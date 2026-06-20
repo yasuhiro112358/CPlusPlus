@@ -4,6 +4,10 @@
 
 namespace cfr {
 namespace {
+// 利得（手番プレイヤー視点）。アンティ各1、bet で各+1。
+constexpr double WIN_ANTE = 1.0;  // アンティのみ：check-check / 相手の fold
+constexpr double WIN_AFTER_CALL = 2.0;  // bet がコールされたショーダウン
+
 // 行動を、履歴文字列に積む文字へ変換する（Pass→'p', Bet→'b'）。
 char toHistoryChar(KuhnGame::Action action) {
   // どのケースにも一致しなければ（論理上ありえない）
@@ -51,13 +55,13 @@ double KuhnGame::utility(const State& state) const {
   const bool playerCardHigher = state.cards[player] > state.cards[opponent];
 
   if (state.history.back() == 'p') {  // 直前が pass
-    if (state.history == "pp") {
-      return playerCardHigher ? 1.0
-                              : -1.0;  // check-check のショーダウン（ポット2）
+    if (state.history == "pp") {      // check-check のショーダウン（ポット2）
+      return playerCardHigher ? WIN_ANTE : -WIN_ANTE;
     }
-    return 1.0;  // fold → 手番プレイヤーがポットを取る
+    return WIN_ANTE;  // fold → 手番プレイヤーがポットを取る
   }
-  return playerCardHigher ? 2.0 : -2.0;  // bet-call のショーダウン（ポット4）
+  // bet-call のショーダウン（ポット4）
+  return playerCardHigher ? WIN_AFTER_CALL : -WIN_AFTER_CALL;
 }
 
 KuhnGame::State KuhnGame::nextState(const State& state, int action) const {
