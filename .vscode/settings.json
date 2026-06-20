@@ -1,9 +1,0 @@
-{
-    "editor.formatOnSave": true,
-    "C_Cpp.formatting": "clangFormat",
-    "C_Cpp.default.cppStandard": "c++20",
-    "editor.rulers": [
-        80
-    ],
-    "files.eol": "\n"
-}
