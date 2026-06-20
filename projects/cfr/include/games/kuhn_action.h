@@ -2,7 +2,7 @@
 #include <cstdint>
 
 namespace cfr {
-// Kuhn poker の行動。整数 0/1 が CFR の行動インデックスに対応する。
+// Kuhn poker の行動。値は CFR の行動インデックスそのもの。
 // kPass = check/fold, kBet = bet/call
-enum class KuhnAction : std::uint8_t { kPass, kBet };
+enum class KuhnAction : std::uint8_t { kPass = 0, kBet = 1 };
 }  // namespace cfr

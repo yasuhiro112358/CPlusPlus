@@ -26,7 +26,7 @@ void RunKuhnDemo() {
   solver.ForEachInfoSet([](const std::string& key, const auto& node) {
     const std::array<double, KuhnGame::kNumActions> avg =
         node.GetAverageStrategy();
-    std::cout << std::left << std::setw(3) << key
+    std::cout << std::left << std::setw(4) << key
               << " : pass=" << gsl::at(avg, 0) << " bet=" << gsl::at(avg, 1)
               << '\n';
   });

@@ -127,7 +127,7 @@ flowchart TD
 
 - ※ fold 系の `+1` は「直前に降りた相手からポットを取る＝手番プレイヤーの勝ち」。実装では
   `terminalPass` かつ `history != "pp"` の枝（コードの `return 1.0;`）。
-- 情報集合キーは「自分のカード＋history」。例：J(0) を持って `pb` の局面なら `0pb`。
+- 情報集合キーは「自分のカード＋history」。例：J(11) を持って `pb` の局面なら `11pb`。
   相手のカードは見えないので、相手札だけ違う複数の実状態が 1 つの情報集合に潰れる。
 
 ## 5. regret matching：GetStrategy()
