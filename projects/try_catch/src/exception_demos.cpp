@@ -28,7 +28,8 @@ namespace try_catch {
         account.withdraw(150);
       } catch (const InsufficientFundsError& e) {
         std::cout << "捕捉: " << e.what() << '\n';
-        std::cout << "  残高=" << e.balance() << " 要求=" << e.requested() << '\n';
+        std::cout << "  残高=" << e.balance() << " 要求=" << e.requested()
+                  << '\n';
       }
     }
 

@@ -304,6 +304,10 @@ C++ Core Guidelines を中心に、有効化するチェック群を [.clang-tid
 
 clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）は**役割が別**。両方併用する。
 
+整形は LLVM プリセットがベース。最大行長は `ColumnLimit: 80`（最も標準的な値）。
+日本語コメントが不自然に折られるのを避けるため `ReflowComments: false`（コメントの
+折り返しは整形ツールに任せず、長いコメントは著者が改行位置を決める）。
+
 ## エディタ設定（.vscode/settings.json）
 
 | 設定 | 値 | 意味 |
@@ -311,5 +315,5 @@ clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）
 | `editor.formatOnSave` | `true` | 保存時に自動整形 |
 | `C_Cpp.formatting` | `clangFormat` | 整形に clang-format を使う |
 | `C_Cpp.default.cppStandard` | `c++20` | 補完・解析の言語規格 |
-| `editor.rulers` | `[100]` | 100桁目にガイド線 |
+| `editor.rulers` | `[80]` | 80桁目にガイド線（`.clang-format` の `ColumnLimit` と一致） |
 | `files.eol` | `\n` | 改行コードを LF に統一 |
