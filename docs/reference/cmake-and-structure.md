@@ -183,6 +183,24 @@ namespace calculator {
   特定の名前1つを局所的に使うなら `using namespace` ではなく
   using 宣言（`using std::swap;`）を関数内で使う。
 
+### 列挙子は修飾して書く（`using enum` は多用スコープに限定）
+
+`enum class` の列挙子は、原則 `Card::Jack` と**スコープ修飾して明示**する
+（方針「できるだけ明示的に書く」と一貫させる）。各行が自己完結し、出自が一目で分かる。
+
+```cpp
+// ✅ 明示。どの enum の値か一目で分かる
+return {{.cards = {Card::Jack, Card::Queen}, .history = ""}, ...};
+
+// △ using enum で修飾を省略。出自が using 行を見ないと分からない
+using enum Card;
+return {{.cards = {Jack, Queen}, .history = ""}, ...};
+```
+
+`using enum X;`（C++20）が報われるのは、**列挙子を密に多用する局所スコープ**だけ
+（全列挙子を分岐する大きな `switch` 文など）。1〜数回しか使わない箇所では、
+修飾の数文字より**自己完結性**を優先する。`using namespace` と同じ判断基準。
+
 ## クラス内のメンバ順序
 
 アクセスレベル順に並べ、**`public:` を先・`private:`（データメンバ）を後**に置く
@@ -304,16 +322,33 @@ C++ Core Guidelines を中心に、有効化するチェック群を [.clang-tid
 
 clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）は**役割が別**。両方併用する。
 
-整形は LLVM プリセットがベース。最大行長は `ColumnLimit: 80`（最も標準的な値）。
-日本語コメントが不自然に折られるのを避けるため `ReflowComments: false`（コメントの
-折り返しは整形ツールに任せず、長いコメントは著者が改行位置を決める）。
+整形は **Google C++ Style をそのまま使う**（[.clang-format](../../.clang-format) は
+`BasedOnStyle: Google` の一行のみ。独自 override なし・**例外なし**）。最も広く採用される
+公開スタイルに乗ることで、形の議論を持たず、書く時間をコードの中身に使う。
 
-## エディタ設定（.vscode/settings.json）
+Google 既定に全面的に従う：列幅 **80**・名前空間内は字下げしない・ポインタは `int* p`・
+アクセス指定子は1スペース字下げ、など。**整形結果はそのまま受け入れる
+（don't fight the formatter）**——改行位置を手で作り込まず、設定もいじらない。
+
+コメントについて：Google は `ReflowComments: true`（80桁でコメントを折り返す）。日本語が
+途中で割れるのを避けるため、**コメント自体を80桁に収まる簡潔さで書く**（各行を短く完結
+させる）。これは設定の例外ではなく、Google スタイルに沿ったコメントの書き方。
+
+## 推奨エディタ設定（ローカル・コミットしない）
+
+`.vscode/settings.json` は **`.gitignore` 済み**で版管理しない。MS C/C++ 拡張固有のエディタ
+配線と個人のワークフロー嗜好にすぎず、**プロジェクトの保証は editor 非依存の
+`.clang-format`／`.gitattributes`／CMake が担う**から。各自のローカル（または VSCode の
+ユーザー設定）に、好みで以下を置く（MS C/C++ 拡張を使う場合の推奨例）：
 
 | 設定 | 値 | 意味 |
 |------|----|------|
 | `editor.formatOnSave` | `true` | 保存時に自動整形 |
 | `C_Cpp.formatting` | `clangFormat` | 整形に clang-format を使う |
 | `C_Cpp.default.cppStandard` | `c++20` | 補完・解析の言語規格 |
-| `editor.rulers` | `[80]` | 80桁目にガイド線（`.clang-format` の `ColumnLimit` と一致） |
-| `files.eol` | `\n` | 改行コードを LF に統一 |
+| `[cpp].editor.defaultFormatter` | `ms-vscode.cpptools` | C++ の整形ツールを MS C/C++ 拡張に固定 |
+
+これで整形チェーンは **VSCode →（cpptools）→ clang-format → `.clang-format`** に固定される。
+ただし**この設定が無くても整形結果は変わらない**（CLI/CI/clangd は `.clang-format` を直接読む）。
+改行コードの統一は [.gitattributes](../../.gitattributes)（`* text=auto eol=lf`）で行う——
+全ツール・全OSに効き、エディタ非依存で確実だから。
