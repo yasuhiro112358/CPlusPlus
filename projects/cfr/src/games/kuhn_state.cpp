@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "games/kuhn_game.h"
+
 namespace cfr {
 namespace {
 // 行動を、履歴文字列に積む文字へ変換する（Pass→'p', Bet→'b'）。
