@@ -8,7 +8,7 @@ int main() {
   // main から例外を漏らさない（std::terminate を避ける）ための保険。
   try {
     calculator::App app;
-    app.run();
+    app.Run();
     return 0;
   } catch (const std::exception& e) {
     std::cerr << "予期しない例外が main に到達: " << e.what() << '\n';

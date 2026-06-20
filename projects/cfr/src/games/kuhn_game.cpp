@@ -3,12 +3,12 @@
 #include "games/kuhn_state.h"
 
 namespace cfr {
-std::vector<KuhnState> KuhnGame::initialStates() const {
-  return {KuhnState(this, {Card::Jack, Card::Queen}, ""),
-          KuhnState(this, {Card::Jack, Card::King}, ""),
-          KuhnState(this, {Card::Queen, Card::Jack}, ""),
-          KuhnState(this, {Card::Queen, Card::King}, ""),
-          KuhnState(this, {Card::King, Card::Jack}, ""),
-          KuhnState(this, {Card::King, Card::Queen}, "")};
+std::vector<KuhnState> KuhnGame::InitialStates() const {
+  return {KuhnState(this, {Card::kJack, Card::kQueen}, ""),
+          KuhnState(this, {Card::kJack, Card::kKing}, ""),
+          KuhnState(this, {Card::kQueen, Card::kJack}, ""),
+          KuhnState(this, {Card::kQueen, Card::kKing}, ""),
+          KuhnState(this, {Card::kKing, Card::kJack}, ""),
+          KuhnState(this, {Card::kKing, Card::kQueen}, "")};
 }
 }  // namespace cfr

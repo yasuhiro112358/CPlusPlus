@@ -105,17 +105,22 @@ target_include_directories(${PROJECT_NAME} PRIVATE include)
 
 macOS では `gcc`/`g++` も実体は Clang へのエイリアスになっている。
 
-## 命名規則（LLVMベース）
+## 命名規則（Google C++ Style）
+
+整形（`BasedOnStyle: Google`）に合わせ、命名も **Google C++ Style に統一**する。
+`readability-identifier-naming` で機械的に強制（`.clang-tidy` の `CheckOptions`）。
 
 | 対象 | 規則 | 例 |
 |------|------|----|
-| 型（class/struct/enum） | PascalCase | `Person`, `Vector2` |
-| 関数/メソッド | camelCase | `getName`, `setAge` |
-| 変数 | camelCase | `userName`, `count` |
-| メンバ変数 | camelCase + `_` | `userName_`, `count_` |
-| 定数/マクロ | UPPER_CASE | `MAX_SIZE` |
-| 名前空間 | snake_case | `cpp_lab::models` |
-| ファイル | snake_case。中身を表す名前 | クラス→型名 `person.h`、自由関数→分野名 `arithmetic.h` |
+| 型（class/struct/enum/別名） | PascalCase | `KuhnGame`, `Card` |
+| 関数/メソッド | **PascalCase** | `GetStrategy`, `IsTerminal` |
+| 変数/引数 | **snake_case** | `node_util`, `realization_weight` |
+| メンバ変数（private） | **snake_case + `_`** | `regret_sum_`, `history_` |
+| 定数（constexpr/static const） | **`k` + PascalCase** | `kNumActions` |
+| enum 値 | **`k` + PascalCase** | `Card::kJack`, `Action::kBet` |
+| マクロ | UPPER_CASE | `MAX_SIZE` |
+| 名前空間 | snake_case | `cfr`, `try_catch` |
+| ファイル | snake_case。中身を表す名前 | クラス→型名 `kuhn_game.h`、自由関数→分野名 `arithmetic.h` |
 
 ファイル名は「中身が何か」を表す。クラスを入れるファイルは型名（実体の名詞、例
 `bank_account.h` = `BankAccount`）、自由関数をまとめるファイルは分野名（カテゴリの
@@ -130,17 +135,17 @@ macOS では `gcc`/`g++` も実体は Clang へのエイリアスになってい
 コメントは更新されず腐るが、名前と型は常にコードと一致するため。
 
 - **マジックナンバー・文字は名前付き型へ昇格する**。`int`(0/1) や `char`('p'/'b') を
-  そのまま使わず `enum class` にする。例：`enum class Action { Pass, Bet }`、
-  `enum class Card { Jack, Queen, King }`（値の順序が強さの順）。コメントが型に消える。
-- **名前で意図を表す**。`toChar` でなく `toHistoryChar`（何のための文字かまで名乗る）、
-  変数も役割が分かる名前（`historyChar`）にする。
+  そのまま使わず `enum class` にする。例：`enum class Action { kPass, kBet }`、
+  `enum class Card { kJack, kQueen, kKing }`（値の順序が強さの順）。コメントが型に消える。
+- **名前で意図を表す**。`ToChar` でなく `ToHistoryChar`（何のための文字かまで名乗る）、
+  変数も役割が分かる名前（`history_char`）にする。
 - **型・`const`・`explicit`・`[[nodiscard]]` で契約を表す**。コンパイラが守ってくれる
   ので、コメントで書く「事前条件」より確実。
 - **doc コメント（Doxygen）は基本使わない**。self-documenting を優先し、型や名前で
   表せない「なぜ」だけをコメントで補う。
 
 実例は cfr の [KuhnGame](../../projects/cfr/src/games/kuhn_game.cpp)（`enum class` 化・
-`toHistoryChar`）。列挙子の書き方は「列挙子は修飾して書く」節も参照。
+`ToHistoryChar`）。列挙子の書き方は「列挙子は修飾して書く」節も参照。
 
 ## namespace 設計方針
 

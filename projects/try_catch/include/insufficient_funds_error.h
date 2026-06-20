@@ -9,8 +9,8 @@ class InsufficientFundsError : public std::runtime_error {
  public:
   InsufficientFundsError(int balance, int requested);
 
-  [[nodiscard]] int balance() const { return balance_; }
-  [[nodiscard]] int requested() const { return requested_; }
+  [[nodiscard]] int Balance() const { return balance_; }
+  [[nodiscard]] int Requested() const { return requested_; }
 
  private:
   int balance_;

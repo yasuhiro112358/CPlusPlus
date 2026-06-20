@@ -12,16 +12,16 @@
 
 ```mermaid
 flowchart TD
-    main["main()<br/>薄い入口・例外の安全網"] --> demo["runKuhnDemo()<br/>kuhn_demo.cpp・結果表示も担当"]
-    demo --> train["CfrSolver&lt;KuhnGame&gt;::train()"]
-    demo --> visit["CfrSolver::forEachInfoSet()<br/>（demo 側で整形して出力）"]
+    main["main()<br/>薄い入口・例外の安全網"] --> demo["RunKuhnDemo()<br/>kuhn_demo.cpp・結果表示も担当"]
+    demo --> train["CfrSolver&lt;KuhnGame&gt;::Train()"]
+    demo --> visit["CfrSolver::ForEachInfoSet()<br/>（demo 側で整形して出力）"]
     train -->|game.initialStates()| game["KuhnGame<br/>ルール＋設定（ante）"]
-    train -->|6通りの配牌 × 反復| cfr["CfrSolver::cfr()<br/>※自分自身を再帰呼び出し"]
+    train -->|6通りの配牌 × 反復| cfr["CfrSolver::Cfr()<br/>※自分自身を再帰呼び出し"]
     cfr -->|再帰| cfr
-    cfr -->|終端判定・利得・キー・次局面| state["KuhnState<br/>isTerminal / utility /<br/>infoSetKey / next"]
-    cfr --> getStrat["InformationSet::getStrategy()<br/>regret matching"]
-    cfr --> accRegret["InformationSet::accumulateRegret()"]
-    visit --> getAvg["InformationSet::getAverageStrategy()"]
+    cfr -->|終端判定・利得・キー・次局面| state["KuhnState<br/>IsTerminal / Utility /<br/>InfoSetKey / Next"]
+    cfr --> getStrat["InformationSet::GetStrategy()<br/>regret matching"]
+    cfr --> accRegret["InformationSet::AccumulateRegret()"]
+    visit --> getAvg["InformationSet::GetAverageStrategy()"]
 
     classDef engine fill:#e3f2fd,stroke:#1565c0;
     classDef gameNode fill:#e8f5e9,stroke:#2e7d32;
@@ -32,17 +32,17 @@ flowchart TD
 ```
 
 - 青 = CFR エンジン（`CfrSolver<G>`：ゲーム非依存）/ 緑 = ゲーム側（`KuhnGame`＝ルール＋設定、`KuhnState`＝局面）/ 橙 = 情報集合の部品（`InformationSet<N>`）。
-- `CfrSolver` は Kuhn を一切知らない。**各ノードの問い合わせ（終端・利得・キー・次局面）は局面 `KuhnState` 自身が答える**。エンジンは `state.isTerminal()` のように局面へ委ねる（OpenSpiel と同型）。`KuhnGame` は初期局面の生成と設定（ante）を担う。
+- `CfrSolver` は Kuhn を一切知らない。**各ノードの問い合わせ（終端・利得・キー・次局面）は局面 `KuhnState` 自身が答える**。エンジンは `state.IsTerminal()` のように局面へ委ねる（OpenSpiel と同型）。`KuhnGame` は初期局面の生成と設定（ante）を担う。
 
-## 2. train() のループ構造
+## 2. Train() のループ構造
 
 ```mermaid
 flowchart TD
-    start(["train(iterations)"]) --> init["utilSum = 0"]
+    start(["Train(iterations)"]) --> init["util_sum = 0"]
     init --> iloop{"i < iterations ?"}
-    iloop -->|No| ret["平均ゲーム価値を返す<br/>utilSum / (iterations × 6)"]
+    iloop -->|No| ret["平均ゲーム価値を返す<br/>util_sum / (iterations × 6)"]
     iloop -->|Yes| dloop{"6通りの配牌<br/>DEALS を順に"}
-    dloop -->|次の配牌| call["utilSum += cfr(cards, &quot;&quot;, 1.0, 1.0)<br/>履歴は空・到達確率は両者1.0"]
+    dloop -->|次の配牌| call["util_sum += Cfr(cards, &quot;&quot;, 1.0, 1.0)<br/>履歴は空・到達確率は両者1.0"]
     call --> dloop
     dloop -->|6通り完了| inext["++i"]
     inext --> iloop
@@ -52,33 +52,33 @@ flowchart TD
 - `DEALS` は 3 枚から 2 人へ配る全 6 通りを全列挙する（chance node を sampling せず総当りする **vanilla CFR**）。
 - 1 反復＝6 配牌ぶんゲーム木を辿る。だから平均の分母が `iterations × 6`。
 
-## 3. cfr() の処理フロー（核心）
+## 3. Cfr() の処理フロー（核心）
 
-`cfr()` は 1 つの情報集合（手番プレイヤーの視点）を処理して、その期待利得を返す再帰関数。
+`Cfr()` は 1 つの情報集合（手番プレイヤーの視点）を処理して、その期待利得を返す再帰関数。
 コード中の番号コメント `1.〜4.` に対応する。
 
 ```mermaid
 flowchart TD
-    start(["cfr(cards, history, p0, p1)"]) --> calc["plays = history長<br/>player = plays % 2<br/>opponent = 1 - player"]
+    start(["Cfr(cards, history, p0, p1)"]) --> calc["plays = history長<br/>player = plays % 2<br/>opponent = 1 - player"]
     calc --> term{"1. 終端か？<br/>plays > 1"}
 
     term -->|"history == &quot;pp&quot;"| sd2["check-check ショーダウン<br/>勝ち +1 / 負け -1 を返す"]
     term -->|"末尾が p（fold）"| fold["相手が降りた<br/>+1 を返す"]
     term -->|"末尾2つが bb"| sd4["bet-call ショーダウン<br/>勝ち +2 / 負け -2 を返す"]
-    term -->|"非終端"| node["2. 情報集合ノードを取得<br/>キー = カード + history<br/>nodeMap_ に無ければ生成"]
+    term -->|"非終端"| node["2. 情報集合ノードを取得<br/>キー = カード + history<br/>node_map_ に無ければ生成"]
 
-    node --> strat["realizationWeight =<br/>player==0 ? p0 : p1<br/>strategy = node.getStrategy(weight)"]
+    node --> strat["realization_weight =<br/>player==0 ? p0 : p1<br/>strategy = node.GetStrategy(weight)"]
     strat --> aloop{"3. 各行動 a<br/>(0=pass, 1=bet)"}
 
-    aloop -->|"行動ごと"| recurse["nextHistory = history + p/b<br/>util[a] = -cfr(... 該当pを strategy[a] 倍 ...)<br/>※子は相手視点なので符号反転"]
-    recurse --> accum["nodeUtil += strategy[a] × util[a]"]
+    aloop -->|"行動ごと"| recurse["nextHistory = history + p/b<br/>util[a] = -Cfr(... 該当pを strategy[a] 倍 ...)<br/>※子は相手視点なので符号反転"]
+    recurse --> accum["node_util += strategy[a] × util[a]"]
     accum --> aloop
 
-    aloop -->|"全行動完了"| cfreach["counterfactualReach =<br/>player==0 ? p1 : p0<br/>（相手の到達確率）"]
+    aloop -->|"全行動完了"| cfreach["counterfactual_reach =<br/>player==0 ? p1 : p0<br/>（相手の到達確率）"]
     cfreach --> rloop{"4. 各行動 a"}
-    rloop -->|"行動ごと"| regret["regret = util[a] - nodeUtil<br/>node.accumulateRegret(a, reach × regret)"]
+    rloop -->|"行動ごと"| regret["regret = util[a] - node_util<br/>node.AccumulateRegret(a, reach × regret)"]
     regret --> rloop
-    rloop -->|"完了"| retutil["nodeUtil を返す"]
+    rloop -->|"完了"| retutil["node_util を返す"]
 
     sd2 --> done(["呼び出し元へ"])
     fold --> done
@@ -89,23 +89,23 @@ flowchart TD
     class sd2,fold,sd4 terminal;
 ```
 
-### 符号反転 `-cfr(...)` の意味
+### 符号反転 `-Cfr(...)` の意味
 
-`cfr()` は常に「**今の手番プレイヤー視点**」の利得を返す。子ノードは相手の手番なので、
-親から見ると損得が逆。だから `util[a] = -cfr(...)` で反転して自分視点に揃える。
+`Cfr()` は常に「**今の手番プレイヤー視点**」の利得を返す。子ノードは相手の手番なので、
+親から見ると損得が逆。だから `util[a] = -Cfr(...)` で反転して自分視点に揃える。
 
 ### 到達確率 p0 / p1 の役割（2種類の使い分け）
 
 | 用途 | 使う確率 | 意味 |
 |------|----------|------|
-| 戦略の積算（getStrategy の重み） | **自分**の到達確率 | 平均戦略を「来やすい所ほど濃く」する |
-| regret の重み（counterfactualReach） | **相手**の到達確率 | 反実仮想：自分がここに来る確率は外す |
+| 戦略の積算（GetStrategy の重み） | **自分**の到達確率 | 平均戦略を「来やすい所ほど濃く」する |
+| regret の重み（counterfactual_reach） | **相手**の到達確率 | 反実仮想：自分がここに来る確率は外す |
 
 この「自分／相手のどちらの確率か」が CFR の肝（[cfr.md](cfr.md) の ③counterfactual）。
 
 ## 4. Kuhn poker のゲーム木（cfr が辿る空間）
 
-`cfr()` が history を伸ばしながら辿る木。葉（■）が終端利得。
+`Cfr()` が history を伸ばしながら辿る木。葉（■）が終端利得。
 `P0`/`P1` は手番、利得は**そのノードの手番プレイヤー視点**。
 
 ```mermaid
@@ -130,27 +130,27 @@ flowchart TD
 - 情報集合キーは「自分のカード＋history」。例：J(0) を持って `pb` の局面なら `0pb`。
   相手のカードは見えないので、相手札だけ違う複数の実状態が 1 つの情報集合に潰れる。
 
-## 5. regret matching：getStrategy()
+## 5. regret matching：GetStrategy()
 
 各情報集合が「後悔の大きい行動ほど高確率」で次の戦略を作る部分。
 
 ```mermaid
 flowchart TD
-    start(["getStrategy(realizationWeight)"]) --> pos["1. 各行動: strategy[a] = max(regretSum[a], 0)<br/>負の後悔は0にクリップ<br/>normalizingSum に加算"]
-    pos --> norm{"normalizingSum > 0 ?"}
-    norm -->|Yes| div["strategy[a] /= normalizingSum<br/>（正の後悔に比例）"]
+    start(["GetStrategy(realization_weight)"]) --> pos["1. 各行動: strategy[a] = max(regret_sum[a], 0)<br/>負の後悔は0にクリップ<br/>normalizing_sum に加算"]
+    pos --> norm{"normalizing_sum > 0 ?"}
+    norm -->|Yes| div["strategy[a] /= normalizing_sum<br/>（正の後悔に比例）"]
     norm -->|No| uniform["strategy[a] = 1 / 行動数<br/>（後悔ゼロ → 一様分布）"]
-    div --> acc["3. strategySum[a] +=<br/>realizationWeight × strategy[a]<br/>（平均戦略のため積算）"]
+    div --> acc["3. strategySum[a] +=<br/>realization_weight × strategy[a]<br/>（平均戦略のため積算）"]
     uniform --> acc
     acc --> ret["strategy を返す"]
 ```
 
 - 返す `strategy` は **この反復の戦略**。これは均衡に収束しない。
-- 収束するのは `strategySum_` を正規化した **平均戦略**（[`getAverageStrategy()`](../include/information_set.h)。`forEachInfoSet` で取り出し、`kuhn_demo` 側が整形して出力）。これが CFR 最大の落とし穴（[cfr.md](cfr.md) の ④）。
+- 収束するのは `strategy_sum_` を正規化した **平均戦略**（[`GetAverageStrategy()`](../include/information_set.h)。`ForEachInfoSet` で取り出し、`kuhn_demo` 側が整形して出力）。これが CFR 最大の落とし穴（[cfr.md](cfr.md) の ④）。
 
 ## Stage 1 達成：エンジンとゲームの分離
 
-かつて `KuhnTrainer::cfr()` に直書きされていたゲーム固有の知識を、`Game` concept
+かつて `KuhnTrainer::Cfr()` に直書きされていたゲーム固有の知識を、`Game` concept
 （[`game.h`](../include/game.h)）を満たす [`KuhnGame`](../include/games/kuhn_game.h) へ
 逃がした。境界は以下の通り。
 
@@ -159,11 +159,11 @@ flowchart TD
 
 | 元の場所（KuhnTrainer） | 移動先 | 種別 |
 |------|--------|------|
-| 終端判定（`pp` / 末尾 `p` / 末尾 `bb`） | `KuhnState::isTerminal` | 局面 |
-| 利得（±ante, ±2·ante） | `KuhnState::utility` | 局面 |
-| 行動の文字 `p` / `b` と次局面 | `KuhnState::next` / `NUM_ACTIONS` | 局面 |
-| 情報集合キー（`カード + history`） | `KuhnState::infoSetKey` | 局面 |
-| 配牌6通りの列挙・アンティ設定 | `KuhnGame::initialStates` / `ante` | ゲーム |
+| 終端判定（`pp` / 末尾 `p` / 末尾 `bb`） | `KuhnState::IsTerminal` | 局面 |
+| 利得（±ante, ±2·ante） | `KuhnState::Utility` | 局面 |
+| 行動の文字 `p` / `b` と次局面 | `KuhnState::Next` / `kNumActions` | 局面 |
+| 情報集合キー（`カード + history`） | `KuhnState::InfoSetKey` | 局面 |
+| 配牌6通りの列挙・アンティ設定 | `KuhnGame::InitialStates` / `ante` | ゲーム |
 | `cfr` 再帰・到達確率・regret 積算 | `CfrSolver<G>` | **ゲーム非依存** |
 
 `CfrSolver` は局面に「終端か？／利得は？／次局面は？／キーは？」を `state.method()` で問い合わせ、
@@ -199,12 +199,12 @@ flowchart LR
 | ⑤ 契約の明示 | concept で補う | 純粋仮想関数で自然に明示 |
 
 ①が肝。`KuhnGame::State = {cards, history}` と `LeducGame::State = {cards, board, ...}` は
-別の型で、継承では `virtual bool isTerminal(??? state)` の `???` に書く共通型が無い。
+別の型で、継承では `virtual bool IsTerminal(??? state)` の `???` に書く共通型が無い。
 テンプレートなら各ゲームが自分の `State` を持ち込み、コンパイラがそのゲーム専用の
 ソルバーを焼くので問題が消える。`std::sort` が比較関数を基底クラス無しで受け取れるのと同じ。
 
 ⑤の弱点（テンプレートは素だと契約が不明瞭）は `template <Game G>` の
-[`Game` concept](../include/game.h) で補っている。concept が「isTerminal/utility/… を持つこと」を
+[`Game` concept](../include/game.h) で補っている。concept が「IsTerminal/utility/… を持つこと」を
 コンパイル時に強制し、継承の長所（契約の明示）をテンプレートに取り込んでいる。
 
 > 逆に「設定ファイルで解くゲームを実行時に選ぶ」「複数ゲームを1配列に混ぜる」設計なら

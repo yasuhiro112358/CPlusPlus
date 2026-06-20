@@ -10,12 +10,12 @@
 namespace try_catch {
 namespace {
 // 1. 基本：標準ライブラリが投げる例外を捕まえる
-void demoStandardException() {
+void DemoStandardException() {
   std::cout << "--- 1. 標準例外 (std::out_of_range) ---" << '\n';
   std::vector<int> v{1, 2, 3};
-  const int outOfRangeIndex = 10;  // size 3 に対して範囲外
+  const int out_of_range_index = 10;  // size 3 に対して範囲外
   try {
-    int x = v.at(outOfRangeIndex);  // 範囲外アクセス → std::out_of_range
+    int x = v.at(out_of_range_index);  // 範囲外アクセス → std::out_of_range
     std::cout << x << '\n';
   } catch (const std::out_of_range& e) {
     // 例外オブジェクトは参照で受けるのが基本（スライシングを避ける）
@@ -24,27 +24,27 @@ void demoStandardException() {
 }
 
 // 2. カスタム例外：自作の例外クラスを投げて捕まえる
-void demoCustomException() {
+void DemoCustomException() {
   std::cout << "\n--- 2. カスタム例外 (InsufficientFundsError) ---" << '\n';
-  const int initialBalance = 100;
+  const int initial_balance = 100;
   const int withdrawal = 150;  // 残高超過 → InsufficientFundsError
-  BankAccount account(initialBalance);
+  BankAccount account(initial_balance);
   try {
-    account.withdraw(withdrawal);
+    account.Withdraw(withdrawal);
   } catch (const InsufficientFundsError& e) {
     std::cout << "捕捉: " << e.what() << '\n';
-    std::cout << "  残高=" << e.balance() << " 要求=" << e.requested() << '\n';
+    std::cout << "  残高=" << e.Balance() << " 要求=" << e.Requested() << '\n';
   }
 }
 
 // 3. 複数 catch：型ごとに分岐。基底クラスで「その他」を受ける
-void demoMultipleCatch() {
+void DemoMultipleCatch() {
   std::cout << "\n--- 3. 複数 catch ---" << '\n';
-  const int initialBalance = 100;
-  const int invalidDeposit = -10;  // 負の額 → std::invalid_argument
-  BankAccount account(initialBalance);
+  const int initial_balance = 100;
+  const int invalid_deposit = -10;  // 負の額 → std::invalid_argument
+  BankAccount account(initial_balance);
   try {
-    account.deposit(invalidDeposit);
+    account.Deposit(invalid_deposit);
   } catch (const InsufficientFundsError& e) {
     std::cout << "残高不足: " << e.what() << '\n';
   } catch (const std::exception& e) {
@@ -55,11 +55,11 @@ void demoMultipleCatch() {
 }
 
 // 4. catch(...)：型を問わず全部捕まえる最後の砦
-void demoCatchAll() {
+void DemoCatchAll() {
   std::cout << "\n--- 4. catch(...) 全捕捉 ---" << '\n';
-  const int nonExceptionValue = 42;  // std::exception でない任意の値
+  const int non_exception_value = 42;  // std::exception でない任意の値
   try {
-    throw nonExceptionValue;  // int を投げる（std::exception ではない）
+    throw non_exception_value;  // int を投げる（std::exception ではない）
   } catch (const std::exception& e) {
     std::cout << "std例外: " << e.what() << '\n';
   } catch (...) {
@@ -69,29 +69,29 @@ void demoCatchAll() {
 }
 
 // 5. 例外の伝播：呼び出し先で投げた例外は、捕まえる場所まで遡る
-void risky() {
-  const int initialBalance = 50;
+void Risky() {
+  const int initial_balance = 50;
   // 残高超過。ここで投げる。risky() は catch しない
   const int withdrawal = 100;
-  BankAccount account(initialBalance);
-  account.withdraw(withdrawal);
+  BankAccount account(initial_balance);
+  account.Withdraw(withdrawal);
 }
 
-void demoPropagation() {
+void DemoPropagation() {
   std::cout << "\n--- 5. 例外の伝播 ---" << '\n';
   try {
-    risky();  // risky() 内で投げた例外がここまで伝播してくる
+    Risky();  // risky() 内で投げた例外がここまで伝播してくる
   } catch (const std::exception& e) {
     std::cout << "呼び出し元で捕捉: " << e.what() << '\n';
   }
 }
 }  // namespace
 
-void runAllDemos() {
-  demoStandardException();
-  demoCustomException();
-  demoMultipleCatch();
-  demoCatchAll();
-  demoPropagation();
+void RunAllDemos() {
+  DemoStandardException();
+  DemoCustomException();
+  DemoMultipleCatch();
+  DemoCatchAll();
+  DemoPropagation();
 }
 }  // namespace try_catch

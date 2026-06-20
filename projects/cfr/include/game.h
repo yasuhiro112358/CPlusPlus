@@ -16,18 +16,16 @@ concept Game = requires(const G game, const G::State state, int action) {
   // 局面（ゲーム木のノード）の型。
   typename G::State;
   // 行動数。情報集合の配列サイズに使うため定数。
-  { G::NUM_ACTIONS } -> std::convertible_to<int>;
+  { G::kNumActions } -> std::convertible_to<int>;
   // 探索の起点となる全局面（chance node を列挙：Kuhn は配牌6通り）。
   {
-    game.initialStates()
+    game.InitialStates()
   } -> std::convertible_to<std::vector<typename G::State>>;
   // 以下は局面(State)自身が答える。
-  { state.currentPlayer() } -> std::convertible_to<int>;  // 手番（0/1）
-  { state.isTerminal() } -> std::convertible_to<bool>;    // 終端か
-  { state.utility() } -> std::convertible_to<double>;     // 終端利得
-  {
-    state.next(action)
-  } -> std::convertible_to<typename G::State>;                 // 1手後の局面
-  { state.infoSetKey() } -> std::convertible_to<std::string>;  // 情報集合キー
+  { state.CurrentPlayer() } -> std::convertible_to<int>;  // 手番（0/1）
+  { state.IsTerminal() } -> std::convertible_to<bool>;    // 終端か
+  { state.Utility() } -> std::convertible_to<double>;     // 終端利得
+  { state.Next(action) } -> std::convertible_to<typename G::State>;  // 1手後
+  { state.InfoSetKey() } -> std::convertible_to<std::string>;  // 情報集合キー
 };
 }  // namespace cfr

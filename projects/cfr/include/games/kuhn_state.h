@@ -13,19 +13,19 @@ class KuhnState {
             std::string history);
 
   // 手番のプレイヤー（手数の偶奇）。
-  [[nodiscard]] int currentPlayer() const;
+  [[nodiscard]] int CurrentPlayer() const;
 
   // 終端判定（fold で終わるか、bet-call が成立したか）。
-  [[nodiscard]] bool isTerminal() const;
+  [[nodiscard]] bool IsTerminal() const;
 
   // 終端での利得（手番プレイヤー視点）。isTerminal が真のときだけ呼ぶ。
-  [[nodiscard]] double utility() const;
+  [[nodiscard]] double Utility() const;
 
   // action を適用した次の局面（新しい値を返す。元の局面は変えない）。
-  [[nodiscard]] KuhnState next(int action) const;
+  [[nodiscard]] KuhnState Next(int action) const;
 
   // 情報集合のキー = 自分のカード + これまでの履歴。
-  [[nodiscard]] std::string infoSetKey() const;
+  [[nodiscard]] std::string InfoSetKey() const;
 
  private:
   const KuhnGame* game_;                 // 所属するゲーム（アンティ等の設定）
