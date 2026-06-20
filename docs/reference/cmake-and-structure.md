@@ -345,7 +345,27 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 **GSL（Guidelines Support Library）の `gsl::at`** で満たす（`arr[i]` の代わりに
 `gsl::at(arr, i)` で範囲チェック付きアクセス）。GSL は cfr の CMake が FetchContent で取得する。
 マジックナンバーも抑制せず**名前付き定数に置き換える**（[self-documenting](#self-documenting名前と型で語る) と同じ方針）。
-無効化は Core Guidelines 外でノイズの多い数件（`readability-identifier-length` など）のみ。
+
+### 無効化しているチェックと理由
+
+`.clang-tidy` 本体はコメントを置かない方針なので、無効化の理由はここに記す。各チェックを
+単独有効化して件数を実測し正当化した**4件のみ**。上3つは「デファクトでも外す既知ノイズ／
+少数派スタイル」、4つ目は設計判断。
+
+| 無効化 | 理由 |
+|------|------|
+| `modernize-use-trailing-return-type` | `auto f() -> int` の後置形を全関数に強制する少数派スタイル（Google も不使用）|
+| `readability-identifier-length` | `a`/`e`/`x` 等の慣用的な短名を弾く |
+| `bugprone-easily-swappable-parameters` | 隣接同型引数（`double p0, p1` 等）を一律警告。ノイズが多い |
+| `readability-convert-member-functions-to-static` | `Game` をオブジェクトとして設計する方針（将来の状態付きゲーム）との衝突。[flowchart](../../projects/cfr/docs/flowchart.md) 参照 |
+
+### メタ設定
+
+| 設定 | 値 | 意味 |
+|------|----|------|
+| `WarningsAsErrors` | `'*'` | すべての警告をエラー扱い（「警告0」を機械的に強制）|
+| `HeaderFilterRegex` | `'.*'` | 自前ヘッダも全部解析（テンプレ中心の cfr に必須。システム/GSL ヘッダは別途除外）|
+| `FormatStyle` | `file` | `--fix` の自動修正も `.clang-format` で整形 |
 
 clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）は**役割が別**。両方併用する。
 

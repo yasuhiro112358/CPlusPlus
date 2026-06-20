@@ -1,7 +1,3 @@
-# モダンC++ 静的解析の設定。
-# 方針：C++ Core Guidelines に準拠する（cppcoreguidelines-* はすべて有効）。
-# 境界安全（pro-bounds）プロファイルも GSL の gsl::at で満たす。無効化しているのは
-# Core Guidelines 外でノイズの多い一部チェックのみ。
 Checks: >
   cppcoreguidelines-*,
   bugprone-*,
@@ -14,11 +10,10 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -readability-convert-member-functions-to-static
 
-WarningsAsErrors: ''
+WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'
 FormatStyle: file
 
-# 命名規則（docs/reference/cmake-and-structure.md と対応）を自動チェックする
 CheckOptions:
   readability-identifier-naming.NamespaceCase: lower_case
   readability-identifier-naming.ClassCase: CamelCase
@@ -31,6 +26,5 @@ CheckOptions:
   readability-identifier-naming.PrivateMemberCase: camelBack
   readability-identifier-naming.PrivateMemberSuffix: _
   readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
-  # 定数（constexpr / グローバル定数）は UPPER_CASE
   readability-identifier-naming.ConstexprVariableCase: UPPER_CASE
   readability-identifier-naming.GlobalConstantCase: UPPER_CASE
