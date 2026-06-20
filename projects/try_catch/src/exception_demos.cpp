@@ -13,8 +13,9 @@ namespace {
 void demoStandardException() {
   std::cout << "--- 1. 標準例外 (std::out_of_range) ---" << '\n';
   std::vector<int> v{1, 2, 3};
+  const int outOfRangeIndex = 10;  // size 3 に対して範囲外
   try {
-    int x = v.at(10);  // 範囲外アクセス → std::out_of_range を投げる
+    int x = v.at(outOfRangeIndex);  // 範囲外アクセス → std::out_of_range
     std::cout << x << '\n';
   } catch (const std::out_of_range& e) {
     // 例外オブジェクトは参照で受けるのが基本（スライシングを避ける）
@@ -25,9 +26,11 @@ void demoStandardException() {
 // 2. カスタム例外：自作の例外クラスを投げて捕まえる
 void demoCustomException() {
   std::cout << "\n--- 2. カスタム例外 (InsufficientFundsError) ---" << '\n';
-  BankAccount account(100);
+  const int initialBalance = 100;
+  const int withdrawal = 150;  // 残高超過 → InsufficientFundsError
+  BankAccount account(initialBalance);
   try {
-    account.withdraw(150);
+    account.withdraw(withdrawal);
   } catch (const InsufficientFundsError& e) {
     std::cout << "捕捉: " << e.what() << '\n';
     std::cout << "  残高=" << e.balance() << " 要求=" << e.requested() << '\n';
@@ -37,9 +40,11 @@ void demoCustomException() {
 // 3. 複数 catch：型ごとに分岐。基底クラスで「その他」を受ける
 void demoMultipleCatch() {
   std::cout << "\n--- 3. 複数 catch ---" << '\n';
-  BankAccount account(100);
+  const int initialBalance = 100;
+  const int invalidDeposit = -10;  // 負の額 → std::invalid_argument
+  BankAccount account(initialBalance);
   try {
-    account.deposit(-10);  // std::invalid_argument を投げる
+    account.deposit(invalidDeposit);
   } catch (const InsufficientFundsError& e) {
     std::cout << "残高不足: " << e.what() << '\n';
   } catch (const std::exception& e) {
@@ -52,8 +57,9 @@ void demoMultipleCatch() {
 // 4. catch(...)：型を問わず全部捕まえる最後の砦
 void demoCatchAll() {
   std::cout << "\n--- 4. catch(...) 全捕捉 ---" << '\n';
+  const int nonExceptionValue = 42;  // std::exception でない任意の値
   try {
-    throw 42;  // int を投げる（std::exception ではない）
+    throw nonExceptionValue;  // int を投げる（std::exception ではない）
   } catch (const std::exception& e) {
     std::cout << "std例外: " << e.what() << '\n';
   } catch (...) {
@@ -64,8 +70,11 @@ void demoCatchAll() {
 
 // 5. 例外の伝播：呼び出し先で投げた例外は、捕まえる場所まで遡る
 void risky() {
-  BankAccount account(50);
-  account.withdraw(100);  // ここで投げる。risky() は catch しない
+  const int initialBalance = 50;
+  // 残高超過。ここで投げる。risky() は catch しない
+  const int withdrawal = 100;
+  BankAccount account(initialBalance);
+  account.withdraw(withdrawal);
 }
 
 void demoPropagation() {
