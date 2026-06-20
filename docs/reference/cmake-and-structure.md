@@ -334,6 +334,7 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 | `modernize-*` | 古い書き方を現代的な書き方へ（`NULL`→`nullptr`、`typedef`→`using` 等） |
 | `cppcoreguidelines-*` | C++ Core Guidelines 違反の指摘 |
 | `bugprone-*` | バグになりやすいパターンの検出 |
+| `clang-analyzer-*` | フロー解析（null参照外し・リーク・未初期化など経路をまたぐバグ）|
 | `performance-*` | 性能上の問題の指摘 |
 | `readability-*` | 可読性（命名規則の自動チェックを含む） |
 

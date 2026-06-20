@@ -3,8 +3,9 @@
 # 境界安全（pro-bounds）プロファイルも GSL の gsl::at で満たす。無効化しているのは
 # Core Guidelines 外でノイズの多い一部チェックのみ。
 Checks: >
-  bugprone-*,
   cppcoreguidelines-*,
+  bugprone-*,
+  clang-analyzer-*,
   modernize-*,
   performance-*,
   readability-*,
