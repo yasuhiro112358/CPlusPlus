@@ -1,6 +1,7 @@
 #include "kuhn_demo.h"
 
 #include <array>
+#include <gsl/util>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -24,8 +25,9 @@ void runKuhnDemo() {
   solver.forEachInfoSet([](const std::string& key, const auto& node) {
     const std::array<double, KuhnGame::NUM_ACTIONS> avg =
         node.getAverageStrategy();
-    std::cout << std::left << std::setw(3) << key << " : pass=" << avg[0]
-              << " bet=" << avg[1] << '\n';
+    std::cout << std::left << std::setw(3) << key
+              << " : pass=" << gsl::at(avg, 0) << " bet=" << gsl::at(avg, 1)
+              << '\n';
   });
 }
 }  // namespace cfr

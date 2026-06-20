@@ -1,6 +1,7 @@
 #pragma once
 #include <algorithm>
 #include <array>
+#include <gsl/util>
 
 namespace cfr {
 // 1つの情報集合の後悔(regret)と戦略を積算し、regret matching で戦略を作る。
@@ -15,26 +16,26 @@ class InformationSet {
     std::array<double, NumActions> strategy{};
     double normalizingSum = 0.0;
     for (int a = 0; a < NumActions; ++a) {
-      strategy[a] = std::max(regretSum_[a], 0.0);  // 負の後悔は0にクリップ
-      normalizingSum += strategy[a];
+      gsl::at(strategy, a) = std::max(gsl::at(regretSum_, a), 0.0);  // 負は0に
+      normalizingSum += gsl::at(strategy, a);
     }
 
     // 2. 正規化（合計1に）。後悔が全く無ければ一様分布にする
     for (int a = 0; a < NumActions; ++a) {
       if (normalizingSum > 0.0) {
-        strategy[a] /= normalizingSum;
+        gsl::at(strategy, a) /= normalizingSum;
       } else {
-        strategy[a] = 1.0 / NumActions;
+        gsl::at(strategy, a) = 1.0 / NumActions;
       }
       // 3. 平均戦略のために、到達確率で重み付けして積算する
-      strategySum_[a] += realizationWeight * strategy[a];
+      gsl::at(strategySum_, a) += realizationWeight * gsl::at(strategy, a);
     }
     return strategy;
   }
 
   // ある行動への counterfactual regret を足し込む。
   void accumulateRegret(int action, double regret) {
-    regretSum_[action] += regret;
+    gsl::at(regretSum_, action) += regret;
   }
 
   // 収束後の平均戦略（GTO）を返す。
@@ -42,13 +43,13 @@ class InformationSet {
     std::array<double, NumActions> average{};
     double normalizingSum = 0.0;
     for (int a = 0; a < NumActions; ++a) {
-      normalizingSum += strategySum_[a];
+      normalizingSum += gsl::at(strategySum_, a);
     }
     for (int a = 0; a < NumActions; ++a) {
       if (normalizingSum > 0.0) {
-        average[a] = strategySum_[a] / normalizingSum;
+        gsl::at(average, a) = gsl::at(strategySum_, a) / normalizingSum;
       } else {
-        average[a] = 1.0 / NumActions;  // まだ何も学習していない場合は一様分布
+        gsl::at(average, a) = 1.0 / NumActions;  // 未学習なら一様分布
       }
     }
     return average;

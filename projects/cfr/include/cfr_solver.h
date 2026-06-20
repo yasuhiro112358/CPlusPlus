@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <gsl/util>
 #include <map>
 #include <string>
 #include <utility>
@@ -71,8 +72,9 @@ class CfrSolver {
       const typename G::State next = game_.nextState(state, a);
       // 子は相手の手番。相手視点の利得を反転して自分視点に揃える。
       // 自分が選んだ枝の到達確率だけ strategy[a] 倍する。
-      util[a] = (player == 0) ? -cfr(next, p0 * strategy[a], p1)
-                              : -cfr(next, p0, p1 * strategy[a]);
+      gsl::at(util, a) = (player == 0)
+                             ? -cfr(next, p0 * gsl::at(strategy, a), p1)
+                             : -cfr(next, p0, p1 * gsl::at(strategy, a));
     }
     return util;
   }
@@ -87,7 +89,7 @@ class CfrSolver {
                                 const std::array<double, N>& util) {
     double sum = 0.0;
     for (int a = 0; a < N; ++a) {
-      sum += strategy[a] * util[a];
+      sum += gsl::at(strategy, a) * gsl::at(util, a);
     }
     return sum;
   }
@@ -97,7 +99,7 @@ class CfrSolver {
                                 const std::array<double, N>& util,
                                 double nodeUtil, double counterfactualReach) {
     for (int a = 0; a < N; ++a) {
-      const double regret = util[a] - nodeUtil;
+      const double regret = gsl::at(util, a) - nodeUtil;
       node.accumulateRegret(a, counterfactualReach * regret);
     }
   }

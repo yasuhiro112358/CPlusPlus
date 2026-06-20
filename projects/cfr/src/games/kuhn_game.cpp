@@ -1,5 +1,6 @@
 #include "games/kuhn_game.h"
 
+#include <gsl/util>
 #include <string>
 
 namespace cfr {
@@ -45,14 +46,16 @@ bool KuhnGame::isTerminal(const State& state) const {
   if (state.history.back() == 'p') {
     return true;  // pp(check-check) / bp(fold) / pbp(fold) は終端
   }
-  return state.history[plays - 2] == 'b';  // 末尾2つが bb（bet-call）なら終端
+  // 末尾2つが bb（bet-call）なら終端
+  return gsl::at(state.history, plays - 2) == 'b';
 }
 
 double KuhnGame::utility(const State& state) const {
   const int player = currentPlayer(state);
   const int opponent = 1 - player;
   // Card は値の順が強さの順なので、> がそのまま「自分の方が強い」を意味する。
-  const bool playerCardHigher = state.cards[player] > state.cards[opponent];
+  const bool playerCardHigher =
+      gsl::at(state.cards, player) > gsl::at(state.cards, opponent);
 
   if (state.history.back() == 'p') {  // 直前が pass
     if (state.history == "pp") {      // check-check のショーダウン（ポット2）
@@ -71,7 +74,7 @@ KuhnGame::State KuhnGame::nextState(const State& state, int action) const {
 }
 
 std::string KuhnGame::infoSetKey(const State& state) const {
-  const int card = static_cast<int>(state.cards[currentPlayer(state)]);
+  const int card = static_cast<int>(gsl::at(state.cards, currentPlayer(state)));
   return std::to_string(card) + state.history;
 }
 }  // namespace cfr

@@ -340,11 +340,11 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 `readability-identifier-naming` を使い、命名規則（型は PascalCase、メンバ変数は末尾 `_` 等）を
 自動チェックしている。実行方法は [how-to/run-static-analysis.md](../how-to/run-static-analysis.md)。
 
-`cppcoreguidelines-*` は原則すべて有効。無効化しているのは **GSL（Guidelines Support
-Library）を前提とする pro-bounds プロファイル**（`pro-bounds-constant-array-index` 等。
-このリポジトリは GSL を使わず、固定長 `std::array` の添字は範囲が静的に保証されるため）と、
-Core Guidelines 外でノイズの多い数件（`readability-identifier-length` など）のみ。
-マジックナンバーは抑制せず**名前付き定数に置き換える**（[self-documenting](#self-documenting名前と型で語る) と同じ方針）。
+`cppcoreguidelines-*` は**すべて有効**。境界安全（pro-bounds）プロファイルも、
+**GSL（Guidelines Support Library）の `gsl::at`** で満たす（`arr[i]` の代わりに
+`gsl::at(arr, i)` で範囲チェック付きアクセス）。GSL は cfr の CMake が FetchContent で取得する。
+マジックナンバーも抑制せず**名前付き定数に置き換える**（[self-documenting](#self-documenting名前と型で語る) と同じ方針）。
+無効化は Core Guidelines 外でノイズの多い数件（`readability-identifier-length` など）のみ。
 
 clang-format（見た目の整形）と clang-tidy（バグ・設計の指摘）は**役割が別**。両方併用する。
 

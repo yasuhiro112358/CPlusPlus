@@ -1,7 +1,7 @@
 # モダンC++ 静的解析の設定。
-# 方針：C++ Core Guidelines に準拠する（cppcoreguidelines-* は原則すべて有効）。
-# 無効化しているのは、GSL を前提とする pro-bounds プロファイル（このリポジトリは
-# GSL を使わないため）と、Core Guidelines 外でノイズの多い一部チェックのみ。
+# 方針：C++ Core Guidelines に準拠する（cppcoreguidelines-* はすべて有効）。
+# 境界安全（pro-bounds）プロファイルも GSL の gsl::at で満たす。無効化しているのは
+# Core Guidelines 外でノイズの多い一部チェックのみ。
 Checks: >
   bugprone-*,
   cppcoreguidelines-*,
@@ -12,8 +12,6 @@ Checks: >
   -readability-identifier-length,
   -readability-magic-numbers,
   -bugprone-easily-swappable-parameters,
-  -cppcoreguidelines-pro-bounds-constant-array-index,
-  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -readability-convert-member-functions-to-static
 
 WarningsAsErrors: ''
