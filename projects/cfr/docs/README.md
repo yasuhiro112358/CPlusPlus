@@ -14,6 +14,7 @@ Minimization）** で計算する、自作の C++ ライブラリ。**Kuhn poker
 | [background.md](background.md) | なぜ CFR ソルバーを自作するのか。ポーカー計算ライブラリの全体像と調査結果 |
 | [kuhn-poker.md](kuhn-poker.md) | Kuhn poker のルール・情報集合・GTO |
 | [cfr.md](cfr.md) | CFR アルゴリズムの解説（実装する部品まで） |
+| [flowchart.md](flowchart.md) | 実装の処理フロー図（呼び出し構造・cfr() の核心・ゲーム木）。理解／リファクタ用 |
 
 ## 設計方針：エンジンとゲームを分離する
 
@@ -44,7 +45,7 @@ flowchart TD
 | 段階 | 作るもの | 学ぶこと | 状態 |
 |------|---------|---------|------|
 | **0** | Kuhn poker の CFR（最小） | CFR の原理、ライブラリの基本構造 | ✅ 完了（−1/18 に収束。[cfr.md](cfr.md) 参照） |
-| **1** | エンジンとゲームの分離（抽象化） | ライブラリ設計の核心 | 次 |
+| **1** | エンジンとゲームの分離（抽象化） | ライブラリ設計の核心 | ✅ 完了（`CfrSolver<G>` ↔ `Game` concept。[flowchart.md](flowchart.md) 参照） |
 | **2** | 実ポーカー化（評価・抽象化・高速化） | 車輪の再発明回避・性能 | |
 | **3** | NLHE postflop | 研究レベル。TexasSolver のソースが教材 | |
 
