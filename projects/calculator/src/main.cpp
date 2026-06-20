@@ -1,6 +1,7 @@
-#include "app.h"
 #include <exception>
 #include <iostream>
+
+#include "app.h"
 
 int main() {
   // 最外の安全網：throw を書いていなくても std::bad_alloc 等は起こりうる。

@@ -1,6 +1,7 @@
-#include "exception_demos.h"
 #include <exception>
 #include <iostream>
+
+#include "exception_demos.h"
 
 int main() {
   // 最外の安全網：throw を書いていなくても std::bad_alloc 等は起こりうる。

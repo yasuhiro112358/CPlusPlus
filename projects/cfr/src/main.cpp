@@ -1,6 +1,7 @@
-#include "kuhn_demo.h"
 #include <exception>
 #include <iostream>
+
+#include "kuhn_demo.h"
 
 int main() {
   try {

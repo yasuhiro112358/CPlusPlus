@@ -1,12 +1,1 @@
-BasedOnStyle: LLVM
-IndentWidth: 2
-ColumnLimit: 80
-ReflowComments: false        # コメントの再折り返しはしない（日本語が不自然に折れるのを防ぐ）
-NamespaceIndentation: All
-AccessModifierOffset: -2
-AllowShortFunctionsOnASingleLine: Inline   # クラス内の短い関数（ゲッター等）は1行に保つ
-SpaceBeforeParens: ControlStatements
-DerivePointerAlignment: false
-PointerAlignment: Left       # int* p / Type& e の形（既存コードに統一）
-SortIncludes: true
-IncludeBlocks: Merge
+BasedOnStyle: Google
