@@ -19,6 +19,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/kuhn_demo.cpp
     src/games/kuhn_game.cpp
+    src/games/kuhn_state.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_link_libraries(${PROJECT_NAME} PRIVATE Microsoft.GSL::GSL)

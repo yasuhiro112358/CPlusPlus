@@ -8,6 +8,7 @@
 
 #include "cfr_solver.h"
 #include "games/kuhn_game.h"
+#include "games/kuhn_state.h"
 
 namespace cfr {
 void runKuhnDemo() {

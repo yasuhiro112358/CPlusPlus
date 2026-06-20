@@ -42,14 +42,14 @@ class CfrSolver {
   // ゲーム木を辿り、手番プレイヤー視点の利得を返す。p0/p1 は各人の到達確率。
   double cfr(const G::State& state, double p0, double p1) {
     // 1. 終端なら利得を返す
-    if (game_.isTerminal(state)) {
-      return game_.utility(state);
+    if (state.isTerminal()) {
+      return state.utility();
     }
 
     // 2. この情報集合のノードを取得（無ければ作られる）
-    const int player = game_.currentPlayer(state);
+    const int player = state.currentPlayer();
     const int opponent = 1 - player;
-    InformationSet<N>& node = nodeMap_[game_.infoSetKey(state)];
+    InformationSet<N>& node = nodeMap_[state.infoSetKey()];
 
     // 3. 現在の戦略で各行動の利得と、その期待値を求める
     const std::array<double, N> strategy =
@@ -66,10 +66,10 @@ class CfrSolver {
   std::array<double, N> actionUtilities(const G::State& state,
                                         const std::array<double, N>& strategy,
                                         double p0, double p1) {
-    const int player = game_.currentPlayer(state);
+    const int player = state.currentPlayer();
     std::array<double, N> util{};
     for (int a = 0; a < N; ++a) {
-      const typename G::State next = game_.nextState(state, a);
+      const typename G::State next = state.next(a);
       // 子は相手の手番。相手視点の利得を反転して自分視点に揃える。
       // 自分が選んだ枝の到達確率だけ strategy[a] 倍する。
       gsl::at(util, a) = (player == 0)

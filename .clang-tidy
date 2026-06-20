@@ -7,8 +7,7 @@ Checks: >
   readability-*,
   -modernize-use-trailing-return-type,
   -readability-identifier-length,
-  -bugprone-easily-swappable-parameters,
-  -readability-convert-member-functions-to-static
+  -bugprone-easily-swappable-parameters
 
 WarningsAsErrors: '*'
 HeaderFilterRegex: '.*'

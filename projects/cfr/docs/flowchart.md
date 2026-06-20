@@ -15,9 +15,10 @@ flowchart TD
     main["main()<br/>薄い入口・例外の安全網"] --> demo["runKuhnDemo()<br/>kuhn_demo.cpp・結果表示も担当"]
     demo --> train["CfrSolver&lt;KuhnGame&gt;::train()"]
     demo --> visit["CfrSolver::forEachInfoSet()<br/>（demo 側で整形して出力）"]
+    train -->|game.initialStates()| game["KuhnGame<br/>ルール＋設定（ante）"]
     train -->|6通りの配牌 × 反復| cfr["CfrSolver::cfr()<br/>※自分自身を再帰呼び出し"]
     cfr -->|再帰| cfr
-    cfr -->|終端判定・利得・キー・次状態| game["KuhnGame<br/>isTerminal / utility /<br/>infoSetKey / nextState"]
+    cfr -->|終端判定・利得・キー・次局面| state["KuhnState<br/>isTerminal / utility /<br/>infoSetKey / next"]
     cfr --> getStrat["InformationSet::getStrategy()<br/>regret matching"]
     cfr --> accRegret["InformationSet::accumulateRegret()"]
     visit --> getAvg["InformationSet::getAverageStrategy()"]
@@ -26,12 +27,12 @@ flowchart TD
     classDef gameNode fill:#e8f5e9,stroke:#2e7d32;
     classDef infoset fill:#fff3e0,stroke:#e65100;
     class train,cfr engine;
-    class game gameNode;
+    class game,state gameNode;
     class getStrat,accRegret,getAvg infoset;
 ```
 
-- 青 = CFR エンジン（`CfrSolver<G>`：ゲーム非依存）/ 緑 = ゲーム定義（`KuhnGame`）/ 橙 = 情報集合の部品（`InformationSet<N>`）。
-- `CfrSolver` は Kuhn を一切知らない。終端・利得・行動・キーはすべて `KuhnGame`（`Game` concept）へ問い合わせる。`std::sort` が比較関数に委ねるのと同じ構図。
+- 青 = CFR エンジン（`CfrSolver<G>`：ゲーム非依存）/ 緑 = ゲーム側（`KuhnGame`＝ルール＋設定、`KuhnState`＝局面）/ 橙 = 情報集合の部品（`InformationSet<N>`）。
+- `CfrSolver` は Kuhn を一切知らない。**各ノードの問い合わせ（終端・利得・キー・次局面）は局面 `KuhnState` 自身が答える**。エンジンは `state.isTerminal()` のように局面へ委ねる（OpenSpiel と同型）。`KuhnGame` は初期局面の生成と設定（ante）を担う。
 
 ## 2. train() のループ構造
 
@@ -153,18 +154,22 @@ flowchart TD
 （[`game.h`](../include/game.h)）を満たす [`KuhnGame`](../include/games/kuhn_game.h) へ
 逃がした。境界は以下の通り。
 
+局面の問い合わせは**局面 `KuhnState` 自身のメソッド**に置く（OpenSpiel と同型）。
+`KuhnGame` はルールと設定（ante）と初期局面の生成を担う。
+
 | 元の場所（KuhnTrainer） | 移動先 | 種別 |
 |------|--------|------|
-| 終端判定（`pp` / 末尾 `p` / 末尾 `bb`） | `KuhnGame::isTerminal` | ゲーム固有 |
-| 利得（±1, +1, ±2） | `KuhnGame::utility` | ゲーム固有 |
-| 行動の文字 `p` / `b` と次状態 | `KuhnGame::nextState` / `NUM_ACTIONS` | ゲーム固有 |
-| 情報集合キー（`カード + history`） | `KuhnGame::infoSetKey` | ゲーム固有 |
-| 配牌6通りの列挙 | `KuhnGame::initialStates` | ゲーム固有 |
+| 終端判定（`pp` / 末尾 `p` / 末尾 `bb`） | `KuhnState::isTerminal` | 局面 |
+| 利得（±ante, ±2·ante） | `KuhnState::utility` | 局面 |
+| 行動の文字 `p` / `b` と次局面 | `KuhnState::next` / `NUM_ACTIONS` | 局面 |
+| 情報集合キー（`カード + history`） | `KuhnState::infoSetKey` | 局面 |
+| 配牌6通りの列挙・アンティ設定 | `KuhnGame::initialStates` / `ante` | ゲーム |
 | `cfr` 再帰・到達確率・regret 積算 | `CfrSolver<G>` | **ゲーム非依存** |
 
-`CfrSolver` は「終端か？／利得は？／次状態は？／キーは？」を `Game` に問い合わせるだけ。
-別ゲーム（Leduc など）を追加するときは `Game` concept を満たす新クラスを書いて
-`CfrSolver<LeducGame>` とするだけでよい。これが [README](README.md) の設計方針の実体。
+`CfrSolver` は局面に「終端か？／利得は？／次局面は？／キーは？」を `state.method()` で問い合わせ、
+`KuhnGame` には初期局面の生成だけを頼む。別ゲーム（Leduc など）を追加するときは
+`Game` concept（ゲーム＋局面）を満たす型を書いて `CfrSolver<LeducGame>` とするだけ。
+これが [README](README.md) の設計方針の実体。
 
 ## なぜ継承でなくテンプレートか
 

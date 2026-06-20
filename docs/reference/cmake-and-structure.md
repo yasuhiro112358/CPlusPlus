@@ -349,15 +349,18 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 ### 無効化しているチェックと理由
 
 `.clang-tidy` 本体はコメントを置かない方針なので、無効化の理由はここに記す。各チェックを
-単独有効化して件数を実測し正当化した**4件のみ**。上3つは「デファクトでも外す既知ノイズ／
-少数派スタイル」、4つ目は設計判断。
+単独有効化して件数を実測し正当化した**3件のみ**。いずれも「デファクトでも外す既知ノイズ／
+少数派スタイル」。
 
 | 無効化 | 理由 |
 |------|------|
 | `modernize-use-trailing-return-type` | `auto f() -> int` の後置形を全関数に強制する少数派スタイル（Google も不使用）|
 | `readability-identifier-length` | `a`/`e`/`x` 等の慣用的な短名を弾く |
 | `bugprone-easily-swappable-parameters` | 隣接同型引数（`double p0, p1` 等）を一律警告。ノイズが多い |
-| `readability-convert-member-functions-to-static` | `Game` はオブジェクト（`KuhnGame` はアンティ額を状態に持つ）。状態を使わない補助メソッドはインターフェース統一のため instance に揃える。[flowchart](../../projects/cfr/docs/flowchart.md) 参照 |
+
+`readability-convert-member-functions-to-static` は当初無効化していたが、局面操作を
+`KuhnState` のメソッドに移す設計（[flowchart](../../projects/cfr/docs/flowchart.md) 参照）で
+全メソッドが自分の状態を使うようになり、**有効化しても通る**ため除外を撤廃した。
 
 ### メタ設定
 
