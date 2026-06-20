@@ -7,7 +7,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    src/information_set.cpp
-    src/kuhn_trainer.cpp
+    src/kuhn_demo.cpp
+    src/games/kuhn_game.cpp
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
