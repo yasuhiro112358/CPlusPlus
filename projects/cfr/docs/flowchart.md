@@ -145,7 +145,7 @@ flowchart TD
 ```
 
 - 返す `strategy` は **この反復の戦略**。これは均衡に収束しない。
-- 収束するのは `strategySum_` を正規化した **平均戦略**（[`getAverageStrategy()`](../src/information_set.cpp)、`printStrategy()` で出力）。これが CFR 最大の落とし穴（[cfr.md](cfr.md) の ④）。
+- 収束するのは `strategySum_` を正規化した **平均戦略**（[`getAverageStrategy()`](../include/information_set.h)。`forEachInfoSet` で取り出し、`kuhn_demo` 側が整形して出力）。これが CFR 最大の落とし穴（[cfr.md](cfr.md) の ④）。
 
 ## Stage 1 達成：エンジンとゲームの分離
 
@@ -165,3 +165,51 @@ flowchart TD
 `CfrSolver` は「終端か？／利得は？／次状態は？／キーは？」を `Game` に問い合わせるだけ。
 別ゲーム（Leduc など）を追加するときは `Game` concept を満たす新クラスを書いて
 `CfrSolver<LeducGame>` とするだけでよい。これが [README](README.md) の設計方針の実体。
+
+## なぜ継承でなくテンプレートか
+
+エンジンとゲームを繋ぐ方法は2流派ある。**継承＋仮想関数（実行時ポリモーフィズム）**と
+**テンプレート＋concept（コンパイル時ポリモーフィズム）**。本実装は後者を選んだ。
+
+```mermaid
+flowchart LR
+    subgraph T["テンプレート（採用）"]
+      direction TB
+      ts["CfrSolver&lt;KuhnGame&gt;"] -->|コンパイル時に型確定| tk["KuhnGame::State を直接使用<br/>呼び出しはインライン"]
+    end
+    subgraph I["継承（不採用）"]
+      direction TB
+      is["CfrSolver が Game* を保持"] -->|実行時に vtable 経由| ik["State 型を共通化する必要<br/>呼び出しは間接"]
+    end
+```
+
+選定理由（①が決定的）：
+
+| 観点 | テンプレート | 継承＋virtual |
+|------|------------|--------------|
+| **① State 型がゲームごとに違う** | ◎ `KuhnGame::State` をそのまま使える | ✗ 基底が各 State を知らず共通化が要る（型消去/キャスト地獄）|
+| **② 速度**（CFR は再帰で数百万回） | ◎ インライン展開・ゼロ overhead | △ vtable 経由の間接呼び出し |
+| ③ 実行時の型差し替え | ✗ できない（`<KuhnGame>` を書き切る）| ◎ `vector<Game*>` で混在可 |
+| ④ コンパイル時間・バイナリ | △ 型ごとに膨張 | ◎ 実装1つ |
+| ⑤ 契約の明示 | concept で補う | 純粋仮想関数で自然に明示 |
+
+①が肝。`KuhnGame::State = {cards, history}` と `LeducGame::State = {cards, board, ...}` は
+別の型で、継承では `virtual bool isTerminal(??? state)` の `???` に書く共通型が無い。
+テンプレートなら各ゲームが自分の `State` を持ち込み、コンパイラがそのゲーム専用の
+ソルバーを焼くので問題が消える。`std::sort` が比較関数を基底クラス無しで受け取れるのと同じ。
+
+⑤の弱点（テンプレートは素だと契約が不明瞭）は `template <Game G>` の
+[`Game` concept](../include/game.h) で補っている。concept が「isTerminal/utility/… を持つこと」を
+コンパイル時に強制し、継承の長所（契約の明示）をテンプレートに取り込んでいる。
+
+> 逆に「設定ファイルで解くゲームを実行時に選ぶ」「複数ゲームを1配列に混ぜる」設計なら
+> 継承が正解だった。本実装はゲームをソースに書き切る前提なので、テンプレートの制約が
+> 問題にならない。
+
+### 副作用：テンプレートはヘッダオンリー
+
+テンプレートは「使う型ごとにコンパイラが実体化する」ため、定義が使用箇所から見えて
+いる必要がある。よって `CfrSolver<G>` と `InformationSet<N>` は実装もヘッダに置く
+（`.cpp` に分離できない）。一方、テンプレートでない `KuhnGame` は通常どおり
+`kuhn_game.h`（宣言）＋ `kuhn_game.cpp`（実装）に分離している。`std::vector` の実装が
+`<vector>` ヘッダに入っているのと同じ事情。
