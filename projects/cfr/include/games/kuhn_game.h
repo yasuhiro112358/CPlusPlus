@@ -6,7 +6,7 @@
 
 namespace cfr {
 // Kuhn poker のルールを CFR エンジン（Game concept）向けに定義する。
-// 状態は「2人の配牌」と「これまでの行動履歴」だけ。
+// 局面(State)は配牌と履歴。ゲーム自体はアンティ額を設定として持つ。
 class KuhnGame {
  public:
   // 行動。基となる整数(0,1)が CFR エンジンの行動インデックスに一致する。
@@ -21,6 +21,10 @@ class KuhnGame {
     std::array<Card, 2> cards;  // 2人に配られたカード
     std::string history;        // これまでの行動（'p'/'b' の列）
   };
+
+  // アンティの絶対額を渡して構成する。Kuhn の定義により bet 額は ante と同額。
+  // 利得はこの ante を単位に計算する。デフォルト 1.0 が正準 Kuhn。
+  explicit KuhnGame(double ante = 1.0) : ante_(ante) {}
 
   // 探索の起点：3枚から2人へ配る全6通り。
   // chance node を全列挙する vanilla CFR。
@@ -40,5 +44,8 @@ class KuhnGame {
 
   // 情報集合のキー = 自分のカード + これまでの履歴。
   [[nodiscard]] std::string infoSetKey(const State& state) const;
+
+ private:
+  double ante_;  // 1人あたりのアンティ額（利得の単位）
 };
 }  // namespace cfr

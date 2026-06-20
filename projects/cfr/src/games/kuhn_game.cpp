@@ -5,10 +5,6 @@
 
 namespace cfr {
 namespace {
-// 利得（手番プレイヤー視点）。アンティ各1、bet で各+1。
-constexpr double WIN_ANTE = 1.0;  // アンティのみ：check-check / 相手の fold
-constexpr double WIN_AFTER_CALL = 2.0;  // bet がコールされたショーダウン
-
 // 行動を、履歴文字列に積む文字へ変換する（Pass→'p', Bet→'b'）。
 char toHistoryChar(KuhnGame::Action action) {
   // どのケースにも一致しなければ（論理上ありえない）
@@ -57,14 +53,18 @@ double KuhnGame::utility(const State& state) const {
   const bool playerCardHigher =
       gsl::at(state.cards, player) > gsl::at(state.cards, opponent);
 
+  // bet = ante なので、純益はアンティ単位で +1（無 bet）か +2（bet-call）。
+  const double winWithoutBet = ante_;     // check-check / fold（ポット2）
+  const double winAfterCall = 2 * ante_;  // bet-call のショーダウン（ポット4）
+
   if (state.history.back() == 'p') {  // 直前が pass
-    if (state.history == "pp") {      // check-check のショーダウン（ポット2）
-      return playerCardHigher ? WIN_ANTE : -WIN_ANTE;
+    if (state.history == "pp") {      // check-check のショーダウン
+      return playerCardHigher ? winWithoutBet : -winWithoutBet;
     }
-    return WIN_ANTE;  // fold → 手番プレイヤーがポットを取る
+    return winWithoutBet;  // fold → 手番プレイヤーがポットを取る
   }
-  // bet-call のショーダウン（ポット4）
-  return playerCardHigher ? WIN_AFTER_CALL : -WIN_AFTER_CALL;
+  // bet-call のショーダウン
+  return playerCardHigher ? winAfterCall : -winAfterCall;
 }
 
 KuhnGame::State KuhnGame::nextState(const State& state, int action) const {

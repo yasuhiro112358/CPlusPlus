@@ -357,7 +357,7 @@ OSシグナル（セグフォルト、整数のゼロ除算）は捕まえられ
 | `modernize-use-trailing-return-type` | `auto f() -> int` の後置形を全関数に強制する少数派スタイル（Google も不使用）|
 | `readability-identifier-length` | `a`/`e`/`x` 等の慣用的な短名を弾く |
 | `bugprone-easily-swappable-parameters` | 隣接同型引数（`double p0, p1` 等）を一律警告。ノイズが多い |
-| `readability-convert-member-functions-to-static` | `Game` をオブジェクトとして設計する方針（将来の状態付きゲーム）との衝突。[flowchart](../../projects/cfr/docs/flowchart.md) 参照 |
+| `readability-convert-member-functions-to-static` | `Game` はオブジェクト（`KuhnGame` はアンティ額を状態に持つ）。状態を使わない補助メソッドはインターフェース統一のため instance に揃える。[flowchart](../../projects/cfr/docs/flowchart.md) 参照 |
 
 ### メタ設定
 
