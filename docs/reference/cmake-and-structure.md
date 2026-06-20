@@ -123,6 +123,25 @@ macOS では `gcc`/`g++` も実体は Clang へのエイリアスになってい
 マーカー（接頭辞など）は付けない（標準ライブラリ `<vector>` / `<algorithm>` と同じ流儀）。
 雑多な補助は `util` ではなく対象を限定（`string_utils` 等）するか分野名を優先する。
 
+## self-documenting（名前と型で語る）
+
+意図は**コメントでなく、名前・型・言語機能で表す**。コメントは「コードから読めないこと
+（なぜ・前提・視点）」だけに使い、「何をしているか（WHAT）」はコード自身に語らせる。
+コメントは更新されず腐るが、名前と型は常にコードと一致するため。
+
+- **マジックナンバー・文字は名前付き型へ昇格する**。`int`(0/1) や `char`('p'/'b') を
+  そのまま使わず `enum class` にする。例：`enum class Action { Pass, Bet }`、
+  `enum class Card { Jack, Queen, King }`（値の順序が強さの順）。コメントが型に消える。
+- **名前で意図を表す**。`toChar` でなく `toHistoryChar`（何のための文字かまで名乗る）、
+  変数も役割が分かる名前（`historyChar`）にする。
+- **型・`const`・`explicit`・`[[nodiscard]]` で契約を表す**。コンパイラが守ってくれる
+  ので、コメントで書く「事前条件」より確実。
+- **doc コメント（Doxygen）は基本使わない**。self-documenting を優先し、型や名前で
+  表せない「なぜ」だけをコメントで補う。
+
+実例は cfr の [KuhnGame](../../projects/cfr/src/games/kuhn_game.cpp)（`enum class` 化・
+`toHistoryChar`）。列挙子の書き方は「列挙子は修飾して書く」節も参照。
+
 ## namespace 設計方針
 
 このリポジトリは「ここで実験し、面白くなったプロジェクトは別リポジトリへ引っ越す」
@@ -352,3 +371,9 @@ Google 既定に全面的に従う：列幅 **80**・名前空間内は字下げ
 ただし**この設定が無くても整形結果は変わらない**（CLI/CI/clangd は `.clang-format` を直接読む）。
 改行コードの統一は [.gitattributes](../../.gitattributes)（`* text=auto eol=lf`）で行う——
 全ツール・全OSに効き、エディタ非依存で確実だから。
+
+`editor.formatOnSave` は**意図的に各プロジェクトのローカル設定だけに置く**（グローバルに
+入れない）。他人のリポジトリを開いて保存しただけで自分のスタイルに整形され差分が荒れるのを
+防ぐため——自動整形は「自分のプロジェクトにだけ手で許可する」オプトイン。さらにユーザー設定に
+`editor.formatOnSaveMode: "modificationsIfAvailable"` を置くと、整形が**変更した行だけ**に
+限定され、他人のコードの未変更行を触らない。
