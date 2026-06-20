@@ -1,20 +1,14 @@
 #pragma once
-#include <cstdint>
 #include <vector>
 
 namespace cfr {
 class KuhnState;  // 局面（kuhn_state.h で定義）。相互依存のため前方宣言。
 
 // Kuhn poker のルールと設定（アンティ額）。局面そのものは KuhnState が表す。
+// カード・行動の語彙は kuhn_card.h / kuhn_action.h に独立している。
 class KuhnGame {
  public:
-  // 行動。基となる整数(0,1)が CFR エンジンの行動インデックスに一致する。
-  // Pass=check/fold, Bet=bet/call
-  enum class Action : std::uint8_t { kPass, kBet };
-  static constexpr int kNumActions = 2;
-
-  // カード。値の順序がそのまま強さの順（Jack < Queen < King）。
-  enum class Card : std::uint8_t { kJack, kQueen, kKing };
+  static constexpr int kNumActions = 2;  // KuhnAction の値数（pass / bet）
 
   using State = KuhnState;
 

@@ -4,18 +4,19 @@
 #include <string>
 #include <utility>
 
+#include "games/kuhn_action.h"
 #include "games/kuhn_game.h"
 
 namespace cfr {
 namespace {
-// 行動を、履歴文字列に積む文字へ変換する（Pass→'p', Bet→'b'）。
-char ToHistoryChar(KuhnGame::Action action) {
+// 行動を、履歴文字列に積む文字へ変換する（kPass→'p', kBet→'b'）。
+char ToHistoryChar(KuhnAction action) {
   char history_char = '?';  // どのケースにも一致しなければ（論理上ありえない）
   switch (action) {
-    case KuhnGame::Action::kPass:
+    case KuhnAction::kPass:
       history_char = 'p';
       break;
-    case KuhnGame::Action::kBet:
+    case KuhnAction::kBet:
       history_char = 'b';
       break;
   }
@@ -23,7 +24,7 @@ char ToHistoryChar(KuhnGame::Action action) {
 }
 }  // namespace
 
-KuhnState::KuhnState(const KuhnGame* game, std::array<KuhnGame::Card, 2> cards,
+KuhnState::KuhnState(const KuhnGame* game, std::array<KuhnCard, 2> cards,
                      std::string history)
     : game_(game), cards_(cards), history_(std::move(history)) {}
 
@@ -46,7 +47,7 @@ bool KuhnState::IsTerminal() const {
 double KuhnState::Utility() const {
   const int player = CurrentPlayer();
   const int opponent = 1 - player;
-  // Card は値の順が強さの順なので、> がそのまま「自分の方が強い」を意味する。
+  // 値の順＝強さの順なので、> が「自分の方が強い」を意味する。
   const bool player_card_higher =
       gsl::at(cards_, player) > gsl::at(cards_, opponent);
 
@@ -67,7 +68,7 @@ double KuhnState::Utility() const {
 
 KuhnState KuhnState::Next(int action) const {
   return {game_, cards_,
-          history_ + ToHistoryChar(static_cast<KuhnGame::Action>(action))};
+          history_ + ToHistoryChar(static_cast<KuhnAction>(action))};
 }
 
 std::string KuhnState::InfoSetKey() const {
